@@ -7,10 +7,8 @@ import com.li.entity.dto.Account;
 import com.li.entity.vo.response.AuthorizeVO;
 import com.li.filter.JwtAuthenticationFilter;
 import com.li.service.AccountService;
-import com.li.utils.Const;
 import com.li.utils.JwtUtils;
 import jakarta.annotation.Resource;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -119,8 +117,11 @@ public class SecurityConfiguration {
             if(token == null) {
                 writer.write(RestBean.forbidden("登录验证频繁，请稍后再试").asJsonString());
             } else {
-                AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, o -> o.setToken(token));
-                vo.setExpire(JWT.decode(token).getExpiresAt());
+                // 从将实体类里面的同名字段转化到Vo中
+                AuthorizeVO vo = account.asViewObject(AuthorizeVO.class, v ->{
+                    v.setToken(token);
+                    v.setExpire(JWT.decode(token).getExpiresAt());
+                });
                 writer.write(RestBean.success(vo).asJsonString());
             }
         }
