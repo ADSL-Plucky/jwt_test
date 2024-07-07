@@ -39,16 +39,16 @@ public class AuthorizeController {
                 accountService.registerEmailVerifyCode(type, String.valueOf(email), request.getRemoteAddr()));
     }
 
-//    /**
-//     * 进行用户注册操作，需要先请求邮件验证码
-//     * @param vo 注册信息
-//     * @return 是否注册成功
-//     */
-//    @PostMapping("/register")
-//    public RestBean<Void> register(@RequestBody @Valid EmailRegisterVO vo){
-//        return this.messageHandle(() ->
-//                accountService.registerEmailAccount(vo));
-//    }
+    /**
+     * 进行用户注册操作，需要先请求邮件验证码
+     * @param vo 注册信息
+     * @return 是否注册成功
+     */
+    @PostMapping("/register")
+    public RestBean<Void> register(@RequestBody @Valid EmailRegisterVO vo){
+        return this.messageHandle(() ->
+                accountService.registerEmailAccount(vo));
+    }
 //
 //    /**
 //     * 执行密码重置确认，检查验证码是否正确
