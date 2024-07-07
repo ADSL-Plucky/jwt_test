@@ -3,10 +3,10 @@ spring:
     name: jwt_test_backend
   security:
     jwt:
+      # JWT ??
       privateKey: askjdfhaiusdfhai124532
+      # ????????
       expire: 30
-    filter:
-      order: -100
   datasource:
     dynamic:
       #  dynamic????
@@ -18,13 +18,20 @@ spring:
           url: jdbc:mysql://localhost:3306/test
           username: root
           password: MySQL#Li2024
+  rabbitmq:
+    addresses: localhost
+    username: admin
+    password: admin
+    virtual-host: /
   web:
+    # ???????????????
     verify:
       mail-limit: 60
     flow:
       period: 3
       limit: 50
       block: 30
+
 
 # ?????????
 email:
