@@ -6,6 +6,7 @@ import com.li.entity.RestBean;
 import com.li.entity.dto.Account;
 import com.li.entity.vo.response.AuthorizeVO;
 import com.li.filter.JwtAuthenticationFilter;
+import com.li.filter.RequestLogFilter;
 import com.li.service.AccountService;
 import com.li.utils.JwtUtils;
 import jakarta.annotation.Resource;
@@ -39,6 +40,8 @@ public class SecurityConfiguration {
     @Resource
     AccountService accountService;
 
+    @Resource
+    RequestLogFilter requestLogFilter;
 
 
     @Bean
@@ -84,7 +87,8 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 // 将自定义的JWT验证过滤添加到框架里面的用户名及密码验证过滤器之前
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(requestLogFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthenticationFilter, RequestLogFilter.class)
                 // 构建安全配置
                 .build();
     }
@@ -105,13 +109,20 @@ public class SecurityConfiguration {
         response.setContentType("application/json;charset=utf-8");
         PrintWriter writer = response.getWriter();
         if(exceptionOrAuthentication instanceof AccessDeniedException exception) {
+            /*
+            * 未登录拦截/无权限拦截
+            * */
             writer.write(RestBean
                     .forbidden(exception.getMessage()).asJsonString());
         } else if(exceptionOrAuthentication instanceof Exception exception) {
+            /*
+            * 登录失败
+            * */
             writer.write(RestBean
                     .unauthorized(exception.getMessage()).asJsonString());
         } else if(exceptionOrAuthentication instanceof Authentication authentication){
             /*
+            * 登录成功
             * */
             User user = (User) authentication.getPrincipal();
             Account account = accountService.findAccountByNameOrEmail(user.getUsername());

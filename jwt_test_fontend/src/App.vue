@@ -1,3 +1,11 @@
+<template>
+  <header>
+    <div class="wrapper">
+      <router-view/>
+    </div>
+  </header>
+</template>
+
 <script setup>
 import { useDark, useToggle } from '@vueuse/core'
 
@@ -14,13 +22,7 @@ useDark({
 
 </script>
 
-<template>
-  <header>
-    <div class="wrapper">
-      <router-view/>
-    </div>
-  </header>
-</template>
+
 
 <style scoped>
 header {

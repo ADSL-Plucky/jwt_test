@@ -2,7 +2,9 @@ package com.li.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.li.entity.dto.Account;
+import com.li.entity.vo.request.ConfirmResetVO;
 import com.li.entity.vo.request.EmailRegisterVO;
+import com.li.entity.vo.request.EmailResetVO;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 
@@ -17,5 +19,8 @@ public interface AccountService extends IService<Account>, UserDetailsService {
     String registerEmailVerifyCode(String type, String email, String address);
     // 注册邮件账户
     String registerEmailAccount(EmailRegisterVO info);
+
+    String resetEmailAccountPassword(EmailResetVO info);
+    String resetConfirm(ConfirmResetVO info);
 
 }

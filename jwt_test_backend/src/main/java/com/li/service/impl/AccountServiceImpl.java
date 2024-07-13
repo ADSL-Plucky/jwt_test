@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.li.entity.dto.Account;
 import com.li.entity.dto.EmailProperties;
+import com.li.entity.vo.request.ConfirmResetVO;
 import com.li.entity.vo.request.EmailRegisterVO;
+import com.li.entity.vo.request.EmailResetVO;
 import com.li.mapper.AccountMapper;
 import com.li.service.AccountService;
 import com.li.utils.Const;
@@ -116,7 +118,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public String registerEmailVerifyCode(String type, String to, String address) {
         /*
-         *
          * 通过 synchronized 块可以确保在同一时刻只有一个线程可以进入该块，从而防止并发修改带来的问题
          * address.intern() 是一个特殊的方法调用，它返回字符串的规范化表示（interned string）。具体作用如下：
          * 字符串常量池:
@@ -149,7 +150,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                     return "类型错误！";
                 }
             }
-            ;
             String result = MailUtil.sendMail(emailProperties, to, title, content);
             // 将生成的验证码和对应的邮箱、过期时间存入redis，用于验证，过期时间时间一般是三分钟
             stringRedisTemplate.opsForValue()
@@ -182,14 +182,48 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if (this.existsAccountByUsername(username)) return "该用户名已被他人使用，请重新更换";
         // 注册用户
         String password = passwordEncoder.encode(info.getPassword());
-        Account account = new Account(null, username,email,
-                password,  Const.ROLE_DEFAULT, new Date());
+        Account account = new Account(null, username, email,
+                password, Const.ROLE_DEFAULT, new Date());
         if (!this.save(account)) {
             return "内部错误，注册失败";
         } else {
             this.deleteEmailVerifyCode(email);
             return null;
         }
+    }
+
+    /**
+     * 邮件验证码重置密码操作，需要检查验证码是否正确
+     *
+     * @param info 重置基本信息
+     * @return 操作结果，null表示正常，否则为错误原因
+     */
+    @Override
+    public String resetEmailAccountPassword(EmailResetVO info) {
+        String verify = resetConfirm(new ConfirmResetVO(info.getEmail(), info.getCode()));
+        if (verify != null) return verify;
+        String email = info.getEmail();
+        String password = passwordEncoder.encode(info.getPassword());
+        boolean update = this.update().eq("email", email).set("password", password).update();
+        if (update) {
+            this.deleteEmailVerifyCode(email);
+        }
+        return update ? null : "更新失败，请联系管理员";
+    }
+
+    /**
+     * 重置密码确认操作，验证验证码是否正确
+     *
+     * @param info 验证基本信息
+     * @return 操作结果，null表示正常，否则为错误原因
+     */
+    @Override
+    public String resetConfirm(ConfirmResetVO info) {
+        String email = info.getEmail();
+        String code = this.getEmailVerifyCode(email);
+        if (code == null) return "请先获取验证码";
+        if (!code.equals(info.getCode())) return "验证码错误，请重新输入";
+        return null;
     }
 
     /*

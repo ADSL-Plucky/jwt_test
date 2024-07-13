@@ -1,3 +1,8 @@
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    operations-sorter: alpha
+
 spring:
   application:
     name: jwt_test_backend

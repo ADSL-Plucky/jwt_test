@@ -20,6 +20,7 @@ public class MailUtil {
 
         MimeMessage message = null;
         try {
+            // 填充发件人信息
             Properties properties = new Properties();
             properties.put("mail.smtp.host", emailProperties.getHost());
             properties.put("mail.smtp.auth",emailProperties.isAuth());
@@ -64,7 +65,8 @@ public class MailUtil {
             // 发送邮件
             Transport.send(message);
         }catch (Exception e){
-            e.printStackTrace();
+//            e.printStackTrace();
+            return e.getMessage();
         }
         return null;
     }

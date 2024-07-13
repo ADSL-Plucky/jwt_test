@@ -7,7 +7,7 @@
     <div style="margin-top: 50px">
       <el-form :model="form" :rules="rules" ref="formRef">
         <el-form-item prop="username">
-          <el-input v-model="form.username" maxlength="10" type="text" placeholder="用户名/邮箱">
+          <el-input v-model="form.username" type="text" placeholder="用户名/邮箱">
             <template #prefix>
               <el-icon>
                 <EpUser/>
@@ -43,7 +43,7 @@
       <span style="color: grey;font-size: 13px">没有账号</span>
     </el-divider>
     <div>
-      <el-button style="width: 270px" @click="userRegister()" type="warning" plain>注册账号</el-button>
+      <el-button style="width: 270px" @click="router.push('/register')" type="warning" plain>注册账号</el-button>
     </div>
   </div>
 </template>
@@ -75,6 +75,7 @@ function userLogin() {
   formRef.value.validate((isValid) => {
     if (isValid) {
       loginApi(form.username, form.password).then(response => {
+        console.log(response)
         if (response.code == 200) {
           let data = response.data;
           ElMessage.success(`登录成功，欢迎 ${data.username} 来到我们的系统`)
@@ -84,9 +85,6 @@ function userLogin() {
       })
     }
   });
-}
-function userRegister(){
-  ElMessage.success("成功！")
 }
 </script>
 
